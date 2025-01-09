@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Prediction</title>
+</head>
+<body>
+    <h1>Crop Prediction</h1>
+    <form action="/predict" method="POST">
+        
+        <label for="temperature">Temperature:</label><br>
+        <input type="number" id="temperature" name="temperature" step="0.1" required><br><br>
+
+        <label for="humidity">Humidity:</label><br>
+        <input type="number" id="humidity" name="humidity" step="0.1" required><br><br>
+
+
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction %}
+        <h2>Prediction Result</h2>
+        <p>The predicted crop is: {{ prediction }}</p>
+    {% endif %}
+</body>
+</html>

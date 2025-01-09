@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Review Database</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Movie Review Database</h1>
+
+    <!-- Form to add new movie -->
+    <div id="movie-form">
+        <input type="number" id="movie-id" placeholder="Movie ID">
+        <input type="text" id="movie-title" placeholder="Movie Name">
+        <input type="text" id="movie-genre" placeholder="Genre">
+        <input type="text" id="movie-rating" placeholder="Rating">
+        <textarea id="movie-review" placeholder="Review"></textarea>
+        <button id="btn" onclick="createMovie()">Add Movie</button>
+    </div>
+
+    <!-- Section to display the list of movies -->
+    <h2>Movies List</h2>
+    <div id="movies"></div>
+
+    <script>
+        const apiUrl = "/api/movies";              // The URL for API to fetch movie data
+
+        // Function to fetch and display all movies
+        async function fetchMovies() {
+            // Using await to fetch data asynchronously
+            const response = await fetch(apiUrl);                   // Waits for the fetch operation to complete ( Fetch data from API )
+            const movies = await response.json();                   // Waits for the response to be converted to JSON ( Convert the response to JSON )
+            const moviesDiv = document.getElementById("movies");
+            moviesDiv.innerHTML = movies.map(movie =>
+                `<div>
+                    <p><strong>Title:</strong> ${movie.title}</p>
+                    <p><strong>Genre:</strong> ${movie.genre}</p>
+                    <p><strong>Rating:</strong> ${movie.rating}</p>
+                    <p><strong>Review:</strong> ${movie.review}</p>
+                    <button onclick="deleteMovie(${movie.id})">Delete</button>
+                    <button onclick="updateMovie(${movie.id})">Update</button>
+                </div>`
+            ).join("");   // Combine all movie HTML content into one string
+        }
+
+        // Function to add a new movie
+        async function createMovie() {
+            const id = document.getElementById("movie-id").value;
+            const title = document.getElementById("movie-title").value;
+            const genre = document.getElementById("movie-genre").value;
+            const rating = document.getElementById("movie-rating").value;
+            const review = document.getElementById("movie-review").value;
+
+            // Send the new movie data to the server using a POST request
+            const response = await fetch(apiUrl, {
+                method: "POST",       // Use POST to add a new movie
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: parseInt(id), title, genre, rating, review }),
+            });
+            if (response.ok) {
+                fetchMovies();        // Refresh the list of movies if the new movie was successfully added
+            }
+        }
+
+        // Function to delete a movie
+        async function deleteMovie(movieId) {
+            const response = await fetch(`${apiUrl}/${movieId}`, {
+                method: "DELETE",     // Use DELETE to remove a movie
+            });
+            if (response.ok) {
+                fetchMovies();       // Refresh the movie list after deleting
+            }
+        }
+
+        // Function to update a movie
+        async function updateMovie(movieId) {
+            // Prompt the user to enter new movie details
+            const updatedMovie = {
+                title: prompt("Enter new title"),
+                genre: prompt("Enter new genre"),
+                rating: prompt("Enter new rating"),
+                review: prompt("Enter new review")
+            };
+
+
+            // Send the updated movie data to the server using a PUT request
+            const response = await fetch(`${apiUrl}/${movieId}`, {
+                method: "PUT",                                       // Use PUT to update an existing movie
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedMovie),                  // Send the updated movie data as JSON
+            });
+            if (response.ok) {
+                fetchMovies();             // Refresh the list of movies after updating
+            }
+        }
+
+        // Call fetchMovies to display the movies when the page is first loaded
+        fetchMovies();
+    </script>
+</body>
+</html>
